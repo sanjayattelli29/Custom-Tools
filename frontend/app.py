@@ -1,4 +1,4 @@
-﻿
+
 import streamlit as st
 import os
 import sys
@@ -20,18 +20,27 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Add the current directory to the path so imports work on Streamlit Cloud
+import sys
+from pathlib import Path
+
+# Get the absolute path of the current file's directory
+file_path = Path(__file__).parent.absolute()
+# Add the frontend directory to the Python path
+sys.path.append(str(file_path))
+
 # Import modules
-from utils.db import init_all_databases
-from pages.qr_generator import qr_generator_page
-from pages.url_shortener import url_shortener_page
-from pages.app_links import app_links_page
-from pages.analytics import analytics_page
+from frontend.utils.db import init_all_databases
+from frontend.pages.qr_generator import qr_generator_page
+from frontend.pages.url_shortener import url_shortener_page
+from frontend.pages.app_links import app_links_page
+from frontend.pages.analytics import analytics_page
 
 # Import new feature pages
-from pages.youtube_downloader import youtube_downloader_page
-from pages.instagram_downloader import instagram_downloader_page
-from pages.image_converter import image_converter_page
-from pages.pdf_tools import pdf_tools_page
+from frontend.pages.youtube_downloader import youtube_downloader_page
+from frontend.pages.instagram_downloader import instagram_downloader_page
+from frontend.pages.image_converter import image_converter_page
+from frontend.pages.pdf_tools import pdf_tools_page
 
 # Initialize databases
 init_all_databases()
