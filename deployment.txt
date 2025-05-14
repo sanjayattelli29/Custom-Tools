@@ -1,0 +1,130 @@
+# QR Code Generator Application Deployment Guide
+
+## Project Structure
+- frontend/ - Streamlit frontend application
+- backend/ - Flask API backend application
+
+## Main Files
+- Frontend: frontend/app.py (Streamlit main application)
+- Backend: backend/app/main.py (Flask API)
+
+## Deployment Steps
+
+### 1. GitHub Setup
+```bash
+# Initialize Git repository
+git init
+
+# Add all files
+git add .
+
+# Commit changes
+git commit -m "Initial commit"
+
+# Create a new repository on GitHub and link it
+git remote add origin https://github.com/yourusername/qr-python.git
+git branch -M main
+git push -u origin main
+```
+
+### 2. Backend Deployment (Render.com)
+
+1. Sign up or log in to Render.com
+2. Click "New" and select "Web Service"
+3. Connect your GitHub repository
+4. Configure the service:
+   - Name: qr-code-backend
+   - Environment: Python
+   - Build Command: `pip install -r backend/requirements.txt`
+   - Start Command: `cd backend && gunicorn app.main:app`
+   - Select appropriate instance type (Free tier is fine for testing)
+5. Add environment variables (copy from backend/.env):
+   - MONGODB_URI
+   - DB_NAME
+   - CLOUDINARY_CLOUD_NAME
+   - CLOUDINARY_API_KEY
+   - CLOUDINARY_API_SECRET
+   - CLOUDINARY_URL
+   - ALLOWED_ORIGINS (update with your Streamlit URL)
+6. Click "Create Web Service"
+
+### 3. Frontend Deployment (Streamlit Cloud)
+
+1. Sign up or log in to Streamlit Cloud (https://share.streamlit.io/)
+2. Click "New app"
+3. Connect your GitHub repository
+4. Configure the app:
+   - Repository: your GitHub repository
+   - Branch: main
+   - Main file path: frontend/app.py
+5. Add secrets (from frontend/.env):
+   - BACKEND_URL: Your Render.com backend URL (e.g., https://qr-code-backend.onrender.com)
+   - FRONTEND_URL: Your Streamlit Cloud URL (will be provided after deployment)
+   - CLOUDINARY_CLOUD_NAME
+   - CLOUDINARY_API_KEY
+   - CLOUDINARY_API_SECRET
+   - CLOUDINARY_URL
+   - MONGODB_URI
+   - DB_NAME
+6. Click "Deploy"
+
+### 4. Update Environment Variables
+
+After deploying both services, update the environment variables:
+
+#### Backend .env (on Render.com)
+```
+PORT=10000
+DEBUG=False
+MONGODB_URI=mongodb+srv://sanjay29:29Sanjay@cluster0.grdl0.mongodb.net/sanjaydb?retryWrites=true&w=majority&appName=Cluster0
+DB_NAME=sanjaydb
+CLOUDINARY_CLOUD_NAME=dws3beqwu
+CLOUDINARY_API_KEY=274666488199841
+CLOUDINARY_API_SECRET=c7sXiGix-7n_HL2m9LekxGyJg6I
+CLOUDINARY_URL=cloudinary://274666488199841:c7sXiGix-7n_HL2m9LekxGyJg6I@dws3beqwu
+ALLOWED_ORIGINS=https://your-streamlit-app.streamlit.app
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRATION=86400
+```
+
+#### Frontend .env (on Streamlit Cloud)
+```
+BACKEND_URL=https://your-backend-app.onrender.com
+FRONTEND_URL=https://your-streamlit-app.streamlit.app
+CLOUDINARY_CLOUD_NAME=dws3beqwu
+CLOUDINARY_API_KEY=274666488199841
+CLOUDINARY_API_SECRET=c7sXiGix-7n_HL2m9LekxGyJg6I
+CLOUDINARY_URL=cloudinary://274666488199841:c7sXiGix-7n_HL2m9LekxGyJg6I@dws3beqwu
+MONGODB_URI=mongodb+srv://sanjay29:29Sanjay@cluster0.grdl0.mongodb.net/sanjaydb?retryWrites=true&w=majority&appName=Cluster0
+DB_NAME=sanjaydb
+```
+
+## Local Development
+
+### Running Backend Locally
+```bash
+cd backend
+pip install -r requirements.txt
+python -m app.main
+```
+
+### Running Frontend Locally
+```bash
+cd frontend
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+## Troubleshooting
+
+1. If the backend fails to connect to MongoDB, check your MongoDB URI and network settings
+2. If Cloudinary uploads fail, verify your Cloudinary credentials
+3. If the frontend cannot connect to the backend, ensure CORS settings are correct
+4. Check Render.com and Streamlit Cloud logs for detailed error messages
+
+## Important Notes
+
+1. Keep your MongoDB and Cloudinary credentials secure
+2. Update the ALLOWED_ORIGINS in the backend to include your Streamlit app URL
+3. Make sure your backend URL in the frontend .env is correct
+4. For production, consider using environment variables instead of .env files

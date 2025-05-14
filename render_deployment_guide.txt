@@ -1,0 +1,149 @@
+# Detailed Render.com Deployment Guide for QR Code Generator
+
+## Prerequisites
+- GitHub account
+- Render.com account
+- MongoDB Atlas account (already set up)
+- Cloudinary account (already set up)
+
+## Step 1: Prepare Your Repository
+
+1. Create a GitHub repository for your project
+```bash
+cd c:\Users\ATTELLI SANJAY KUMAR\Desktop\qr-python
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/YOUR_USERNAME/qr-python.git
+git branch -M main
+git push -u origin main
+```
+
+## Step 2: Deploy Backend to Render.com
+
+1. Log in to Render.com
+2. From the dashboard, click "New" and select "Web Service"
+3. Connect your GitHub repository
+4. Configure the web service:
+   - Name: qr-code-backend
+   - Environment: Python 3
+   - Region: Choose the closest to your users
+   - Branch: main
+   - Root Directory: Leave empty (uses repository root)
+   - Build Command: `pip install -r backend/requirements.txt`
+   - Start Command: `cd backend && gunicorn app.main:app`
+   - Instance Type: Free (for testing) or Basic (for production)
+
+5. Add environment variables (click "Advanced" then "Add Environment Variable"):
+```
+PORT=10000
+DEBUG=False
+MONGODB_URI=mongodb+srv://sanjay29:29Sanjay@cluster0.grdl0.mongodb.net/sanjaydb?retryWrites=true&w=majority&appName=Cluster0
+DB_NAME=sanjaydb
+CLOUDINARY_CLOUD_NAME=dws3beqwu
+CLOUDINARY_API_KEY=274666488199841
+CLOUDINARY_API_SECRET=c7sXiGix-7n_HL2m9LekxGyJg6I
+CLOUDINARY_URL=cloudinary://274666488199841:c7sXiGix-7n_HL2m9LekxGyJg6I@dws3beqwu
+ALLOWED_ORIGINS=https://share.streamlit.io,http://localhost:8501
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRATION=86400
+```
+
+6. Click "Create Web Service"
+7. Wait for the deployment to complete (this may take a few minutes)
+8. Once deployed, note the URL (e.g., https://qr-code-backend.onrender.com)
+9. Test the backend by visiting the URL in your browser - you should see a JSON response
+
+## Step 3: Update Frontend Configuration
+
+1. Update your frontend/.env file with the Render.com backend URL:
+```
+BACKEND_URL=https://qr-code-backend.onrender.com
+```
+
+2. Commit and push these changes to GitHub:
+```bash
+git add frontend/.env
+git commit -m "Update backend URL for production"
+git push
+```
+
+## Step 4: Deploy Frontend to Streamlit Cloud
+
+1. Log in to Streamlit Cloud (https://share.streamlit.io/)
+2. Click "New app"
+3. Connect your GitHub repository
+4. Configure the deployment:
+   - Repository: your GitHub repository
+   - Branch: main
+   - Main file path: frontend/app.py
+   - App URL: Choose a custom subdomain or use the default
+
+5. Add secrets (click on "Advanced settings" > "Secrets"):
+```
+BACKEND_URL = "https://qr-code-backend.onrender.com"
+FRONTEND_URL = "https://your-app-name.streamlit.app"
+CLOUDINARY_CLOUD_NAME = "dws3beqwu"
+CLOUDINARY_API_KEY = "274666488199841"
+CLOUDINARY_API_SECRET = "c7sXiGix-7n_HL2m9LekxGyJg6I"
+CLOUDINARY_URL = "cloudinary://274666488199841:c7sXiGix-7n_HL2m9LekxGyJg6I@dws3beqwu"
+MONGODB_URI = "mongodb+srv://sanjay29:29Sanjay@cluster0.grdl0.mongodb.net/sanjaydb?retryWrites=true&w=majority&appName=Cluster0"
+DB_NAME = "sanjaydb"
+```
+
+6. Click "Deploy"
+7. Wait for the deployment to complete
+8. Once deployed, note the URL (e.g., https://your-app-name.streamlit.app)
+
+## Step 5: Update Backend CORS Settings
+
+1. Update the ALLOWED_ORIGINS in your backend environment variables on Render.com:
+   - Go to your web service on Render.com
+   - Click "Environment"
+   - Edit the ALLOWED_ORIGINS variable to include your Streamlit app URL:
+   ```
+   ALLOWED_ORIGINS=https://your-app-name.streamlit.app,http://localhost:8501
+   ```
+   - Click "Save Changes"
+   - This will trigger a redeployment of your backend
+
+## Step 6: Verify Deployment
+
+1. Visit your Streamlit app URL
+2. Test the QR code generation functionality
+3. Test the URL shortener functionality
+4. Verify that analytics data is being saved to MongoDB
+
+## Troubleshooting
+
+### Backend Issues
+- Check Render.com logs for errors (Dashboard > Your Service > Logs)
+- Verify MongoDB connection by visiting the `/health` endpoint
+- Check if Cloudinary is properly configured by testing image uploads
+
+### Frontend Issues
+- Check Streamlit Cloud logs for errors
+- Verify that the BACKEND_URL is correct in the Streamlit secrets
+- Test API connectivity by opening browser developer tools and checking network requests
+
+### CORS Issues
+- If you see CORS errors in the browser console, ensure the ALLOWED_ORIGINS on the backend includes your Streamlit app URL
+- Make sure to include the full URL including https:// in the ALLOWED_ORIGINS
+
+## Important Render.com URLs for Your Backend
+
+- Main API: https://qr-code-backend.onrender.com/
+- Health Check: https://qr-code-backend.onrender.com/health
+- Render Info: https://qr-code-backend.onrender.com/render
+- QR Code API: https://qr-code-backend.onrender.com/api/qr/generate
+- URL Shortener API: https://qr-code-backend.onrender.com/api/url/shorten
+- Upload API: https://qr-code-backend.onrender.com/api/upload/image
+
+## Streamlit Main File
+
+The main file for your Streamlit application is:
+```
+frontend/app.py
+```
+
+This is the entry point for your Streamlit application and should be specified when deploying to Streamlit Cloud.
