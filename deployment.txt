@@ -38,6 +38,7 @@ git push -u origin main
    - Build Command: `pip install -r backend/requirements.txt`
    - Start Command: `cd backend && gunicorn app.main:app`
    - Select appropriate instance type (Free tier is fine for testing)
+   
 5. Add environment variables (copy from backend/.env):
    - MONGODB_URI
    - DB_NAME
